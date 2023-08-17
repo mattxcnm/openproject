@@ -81,7 +81,7 @@ export class OpAttachmentsComponent extends UntilDestroyedMixin implements OnIni
 
   public draggingOverDropZone = false;
 
-  public dragging = 0;
+  public dragging = false;
 
   @ViewChild('hiddenFileInput') public filePicker:ElementRef<HTMLInputElement>;
 
@@ -102,18 +102,13 @@ export class OpAttachmentsComponent extends UntilDestroyedMixin implements OnIni
     return isNewResource(this.resource) ? 'new' : this.attachmentsSelfLink;
   }
 
-  private onGlobalDragLeave:(_event:DragEvent) => void = (_event) => {
-    this.dragging = Math.max(this.dragging - 1, 0);
-    this.cdRef.detectChanges();
-  };
-
   private onGlobalDragEnd:(_event:DragEvent) => void = (_event) => {
-    this.dragging = 0;
+    this.dragging = false;
     this.cdRef.detectChanges();
   };
 
   private onGlobalDragEnter:(_event:DragEvent) => void = (_event) => {
-    this.dragging += 1;
+    this.dragging = true;
     this.cdRef.detectChanges();
   };
 
@@ -175,14 +170,12 @@ export class OpAttachmentsComponent extends UntilDestroyedMixin implements OnIni
       );
 
     document.body.addEventListener('dragenter', this.onGlobalDragEnter);
-    document.body.addEventListener('dragleave', this.onGlobalDragLeave);
     document.body.addEventListener('dragend', this.onGlobalDragEnd);
     document.body.addEventListener('drop', this.onGlobalDragEnd);
   }
 
   ngOnDestroy():void {
     document.body.removeEventListener('dragenter', this.onGlobalDragEnter);
-    document.body.removeEventListener('dragleave', this.onGlobalDragLeave);
     document.body.removeEventListener('dragend', this.onGlobalDragEnd);
     document.body.removeEventListener('drop', this.onGlobalDragEnd);
   }
@@ -208,7 +201,7 @@ export class OpAttachmentsComponent extends UntilDestroyedMixin implements OnIni
 
     this.uploadFiles(Array.from(event.dataTransfer.files));
     this.draggingOverDropZone = false;
-    this.dragging = 0;
+    this.dragging = false;
   }
 
   public onDragOver(event:DragEvent):void {

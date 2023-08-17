@@ -129,7 +129,7 @@ export class StorageComponent extends UntilDestroyedMixin implements OnInit, OnD
 
   draggingOverDropZone = false;
 
-  dragging = 0;
+  dragging = false;
 
   text = {
     actions: {
@@ -178,18 +178,13 @@ export class StorageComponent extends UntilDestroyedMixin implements OnInit, OnD
     return (this.resource.$links as unknown&{ addFileLink:IHalResourceLink }).addFileLink.href;
   }
 
-  private onGlobalDragLeave:(_event:DragEvent) => void = (_event) => {
-    this.dragging = Math.max(this.dragging - 1, 0);
-    this.cdRef.detectChanges();
-  };
-
   private onGlobalDragEnd:(_event:DragEvent) => void = (_event) => {
-    this.dragging = 0;
+    this.dragging = false;
     this.cdRef.detectChanges();
   };
 
   private onGlobalDragEnter:(_event:DragEvent) => void = (_event) => {
-    this.dragging += 1;
+    this.dragging = true;
     this.cdRef.detectChanges();
   };
 
@@ -250,14 +245,12 @@ export class StorageComponent extends UntilDestroyedMixin implements OnInit, OnD
     );
 
     document.body.addEventListener('dragenter', this.onGlobalDragEnter);
-    document.body.addEventListener('dragleave', this.onGlobalDragLeave);
     document.body.addEventListener('dragend', this.onGlobalDragEnd);
     document.body.addEventListener('drop', this.onGlobalDragEnd);
   }
 
   ngOnDestroy():void {
     document.body.removeEventListener('dragenter', this.onGlobalDragEnter);
-    document.body.removeEventListener('dragleave', this.onGlobalDragLeave);
     document.body.removeEventListener('dragend', this.onGlobalDragEnd);
     document.body.removeEventListener('drop', this.onGlobalDragEnd);
   }
@@ -507,7 +500,7 @@ export class StorageComponent extends UntilDestroyedMixin implements OnInit, OnD
     if (event.dataTransfer === null) return;
 
     this.draggingOverDropZone = false;
-    this.dragging = 0;
+    this.dragging = false;
 
     const files = event.dataTransfer.files;
     const draggingManyFiles = files.length !== 1;
