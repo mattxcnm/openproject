@@ -92,7 +92,6 @@ RSpec.describe 'API v3 file links resource' do
   describe 'POST /api/v3/file_links' do
     let(:path) { '/api/v3/file_links' }
     let(:permissions) { %i(manage_file_links) }
-    let(:storage_url) { storage.host }
     let(:params) do
       {
         _type: "Collection",
@@ -119,7 +118,7 @@ RSpec.describe 'API v3 file links resource' do
             }
           }
         },
-        build(:file_link_element, storage_url:)
+        build(:file_link_element, storage_url:, origin_id: '200001', origin_name: "file_name_1.txt")
       ]
     end
 
@@ -128,33 +127,61 @@ RSpec.describe 'API v3 file links resource' do
       post path, params.to_json
     end
 
-    context 'when all embedded file link elements are valid' do
-      it_behaves_like 'API V3 collection response', 2, 2, 'FileLink' do
-        let(:elements) { Storages::FileLink.all.order(id: :asc) }
-        let(:expected_status_code) { 201 }
-      end
+    context 'when storage has been configured' do
+      let(:storage_url) { storage.host }
 
-      it 'creates corresponding FileLink records', :aggregate_failures do
-        expect(Storages::FileLink.count).to eq 2
-        Storages::FileLink.find_each.with_index do |file_link, i|
-          unset_keys = %w[container_id container_type]
-          set_keys = (file_link.attributes.keys - unset_keys)
-          set_keys.each do |key|
-            expect(file_link.attributes[key]).not_to(
-              be_nil,
-              "expected attribute #{key.inspect} of FileLink ##{i + 1} to be set.\ngot nil."
-            )
+      context 'when all embedded file link elements are valid' do
+        it_behaves_like 'API V3 collection response', 2, 2, 'FileLink' do
+          let(:elements) { Storages::FileLink.all.order(id: :asc) }
+          let(:expected_status_code) { 201 }
+        end
+
+        it(
+          'creates corresponding FileLink records and ' \
+          'does not provide a link to the collection of created file links',
+          :aggregate_failures
+        ) do
+          expect(Storages::FileLink.count).to eq 2
+          Storages::FileLink.find_each.with_index do |file_link, i|
+            unset_keys = %w[container_id container_type]
+            set_keys = (file_link.attributes.keys - unset_keys)
+            set_keys.each do |key|
+              expect(file_link.attributes[key]).not_to(
+                be_nil,
+                "expected attribute #{key.inspect} of FileLink ##{i + 1} to be set.\ngot nil."
+              )
+            end
+            unset_keys.each do |key|
+              expect(file_link.attributes[key]).to be_nil
+            end
           end
-          unset_keys.each do |key|
-            expect(file_link.attributes[key]).to be_nil
-          end
+
+          expect(response.body).to be_json_eql(
+            'urn:openproject-org:api:v3:file_links:no_link_provided'.to_json
+          ).at_path('_links/self/href')
         end
       end
+    end
 
-      it 'does not provide a link to the collection of created file links' do
-        expect(response.body).to be_json_eql(
-          'urn:openproject-org:api:v3:file_links:no_link_provided'.to_json
-        ).at_path('_links/self/href')
+    context 'when storage with such a host does not exist in OpenProject' do
+      let(:storage_url) { 'https://qweqwe.qweqwe' }
+
+      it 'responds with an appropriate error' do
+        expect(JSON.parse(response.body)).to eq(
+          { "_type" => "Error",
+            "errorIdentifier" => "urn:openproject-org:api:v3:errors:MultipleErrors",
+            "message" => "Multiple field constraints have been violated.",
+            "_embedded" =>
+           { "errors" =>
+            [{ "_type" => "Error",
+               "errorIdentifier" => "urn:openproject-org:api:v3:errors:PropertyConstraintViolation",
+               "message" => "Error attempting to create dependent object: File link - logo.png: Storage does not exist.",
+               "_embedded" => { "details" => { "attribute" => "base" } } },
+             { "_type" => "Error",
+               "errorIdentifier" => "urn:openproject-org:api:v3:errors:PropertyConstraintViolation",
+               "message" => "Error attempting to create dependent object: File link - file_name_1.txt: Storage does not exist.",
+               "_embedded" => { "details" => { "attribute" => "base" } } }] } }
+        )
       end
     end
   end
