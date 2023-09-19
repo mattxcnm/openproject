@@ -1,0 +1,11 @@
+<%= render(Primer::Beta::Button.new(
+      scheme: :primary,
+      size: :medium,
+      tag: :a,
+      role: 'button',
+      href: new_admin_settings_storage_path,
+      aria: { label: I18n.t("storages.label_add_new_storage") }
+    )) do |button| %>
+  <% button.with_leading_visual_icon(icon: :plus) %>
+  <%= label %>
+<% end %>

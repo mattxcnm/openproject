@@ -1,0 +1,25 @@
+<%= render(Primer::Beta::BorderBox.new) do |component|  %>
+  <% component.with_header do |header| %>
+    <% header.with_title(tag: :h3) { I18n.t('storages.count', count: storages.size) } %>
+  <% end %>
+  <% storages.each do |storage| %>
+    <% component.with_row(id: storage_row_css_id(storage)) do %>
+      <div>
+        <%= render(Primer::Beta::Octicon.new(:'alert-fill', size: :small, color: :severe, mr: 2)) unless storage.configured? %>
+        <%= storage.name %>
+        <%= I18n.t('activity.item.created_on', datetime: helpers.format_time(storage.created_at)) %>
+      </div>
+      <div>
+        <%# TODO: Replace with `Users::AvatarComponent` once https://github.com/opf/openproject/pull/13527 is merged %>
+        <%= helpers.avatar(storage.creator, size: :mini) %>
+        <%= storage.creator.name %>
+      </div>
+      <div>
+        <%= storage.provider_type %>
+      </div>
+      <div>
+        <%= storage.host %>
+      </div>
+    <% end %>
+  <% end %>
+<% end %>

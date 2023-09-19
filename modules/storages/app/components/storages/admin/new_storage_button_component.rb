@@ -30,27 +30,6 @@
 #
 module Storages::Admin
   class NewStorageButtonComponent < ApplicationComponent
-    options scheme: :primary,
-            size: :medium,
-            tag: :a
-
-    def call
-      render(Primer::Beta::Button.new(**button_options)) do |button|
-        button.with_leading_visual_icon(icon: :plus)
-        label
-      end
-    end
-
-    private
-
-    def button_options
-      { scheme:,
-        size:, tag:,
-        href: new_admin_settings_storage_path,
-        aria: { label: },
-        title: label }
-    end
-
     def label
       I18n.t("storages.label_storage")
     end
