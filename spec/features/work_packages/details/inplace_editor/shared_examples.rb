@@ -119,12 +119,7 @@ RSpec.shared_examples 'a principal autocomplete field' do
            lastname: 'Foobar')
   end
   let!(:mentioned_group) do
-    create(:group, lastname: 'Laudators').tap do |group|
-      create(:member,
-             principal: group,
-             project:,
-             roles: [role])
-    end
+    create(:group, lastname: 'Laudators', member_with_roles: { project => role })
   end
 
   shared_examples 'principal autocomplete on field' do
@@ -181,12 +176,7 @@ RSpec.shared_examples 'not a principal autocomplete field' do
            lastname: 'Foobar')
   end
   let!(:mentioned_group) do
-    create(:group, lastname: 'Laudators').tap do |group|
-      create(:member,
-             principal: group,
-             project:,
-             roles: [role])
-    end
+    create(:group, lastname: 'Laudators', member_with_roles: { project => role })
   end
 
   shared_examples 'not principal autocomplete on field' do

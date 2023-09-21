@@ -107,14 +107,14 @@ RSpec.describe PlaceholderUsers::MembershipsController do
     current_user do
       create(:user,
              member_with_permissions: { project => %i[manage_members] },
-             global_permission: %i[manage_placeholder_user])
+             global_permissions: %i[manage_placeholder_user])
     end
 
     it_behaves_like 'update memberships flow'
   end
 
   context 'as user with global permission but not project permission' do
-    current_user { create(:user, global_permission: %i[manage_placeholder_user]) }
+    current_user { create(:user, global_permissions: %i[manage_placeholder_user]) }
 
     describe 'POST create' do
       it 'redirects but fails to create' do

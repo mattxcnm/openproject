@@ -27,7 +27,7 @@
 #++
 
 require 'spec_helper'
-require_relative './expected_markdown'
+require_relative 'expected_markdown'
 
 RSpec.describe OpenProject::TextFormatting,
                'mentions' do
@@ -324,12 +324,7 @@ RSpec.describe OpenProject::TextFormatting,
       end
 
       let(:linked_project_member_group) do
-        create(:group).tap do |group|
-          create(:member,
-                 principal: group,
-                 project:,
-                 roles: [role])
-        end
+        create(:group, member_with_roles: { project => role })
       end
 
       context 'via hash syntax' do

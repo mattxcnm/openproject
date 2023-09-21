@@ -26,7 +26,7 @@
 # See COPYRIGHT and LICENSE files for more details.
 
 require 'spec_helper'
-require_relative './show_resource_examples'
+require_relative 'show_resource_examples'
 
 RSpec.describe API::V3::PlaceholderUsers::PlaceholderUsersAPI,
                'show' do
@@ -54,7 +54,7 @@ RSpec.describe API::V3::PlaceholderUsers::PlaceholderUsersAPI,
   end
 
   describe 'user with manage_placeholder_user permission' do
-    let(:user) { create(:user, global_permission: %i[manage_placeholder_user]) }
+    let(:user) { create(:user, global_permissions: %i[manage_placeholder_user]) }
 
     it_behaves_like 'represents the placeholder'
   end

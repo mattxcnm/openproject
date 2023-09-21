@@ -64,12 +64,7 @@ RSpec.describe 'Assignee action board', :js,
   end
 
   let!(:group) do
-    create(:group, name: 'Grouped').tap do |group|
-      create(:member,
-             principal: group,
-             project:,
-             roles: [role])
-    end
+    create(:group, name: 'Grouped', member_with_roles: { project => group })
   end
 
   let!(:work_package) do

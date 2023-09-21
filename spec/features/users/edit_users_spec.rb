@@ -28,7 +28,7 @@
 
 require 'spec_helper'
 
-RSpec.describe 'edit users', js: true, with_cuprite: true do
+RSpec.describe 'edit users', :js, :with_cuprite do
   shared_let(:admin) { create(:admin) }
   let(:current_user) { admin }
   let(:user) { create(:user, mail: 'foo@example.com') }
@@ -85,7 +85,7 @@ RSpec.describe 'edit users', js: true, with_cuprite: true do
   end
 
   context 'as global user' do
-    shared_let(:global_manage_user) { create(:user, global_permission: %i[manage_user create_user]) }
+    shared_let(:global_manage_user) { create(:user, global_permissions: %i[manage_user create_user]) }
     let(:current_user) { global_manage_user }
 
     it 'can too edit the user' do

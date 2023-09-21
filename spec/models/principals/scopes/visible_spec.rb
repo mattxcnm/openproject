@@ -73,16 +73,8 @@ RSpec.describe Principals::Scopes::Visible do
 
     shared_examples 'sees all principals' do
       it 'sees all users, groups, and placeholder users' do
-        expect(subject).to match_array [
-          # system and anonymous users
-          anonymous_user, system_user,
-          # regular users
-          current_user, project_user, other_project_user, global_user,
-          # groups,
-          project_group, other_project_group, global_group,
-          # placeholder users
-          project_placeholder_user, other_placeholder_user, global_placeholder_user
-        ]
+        expect(subject).to contain_exactly(anonymous_user, system_user, current_user, project_user, other_project_user,
+                                           global_user, project_group, other_project_group, global_group, project_placeholder_user, other_placeholder_user, global_placeholder_user)
       end
     end
 
@@ -102,7 +94,7 @@ RSpec.describe Principals::Scopes::Visible do
       end
 
       it 'sees only the users, groups, and placeholder users in the same project' do
-        expect(subject).to match_array [current_user, project_user, project_group, project_placeholder_user]
+        expect(subject).to contain_exactly(current_user, project_user, project_group, project_placeholder_user)
       end
     end
 
@@ -116,7 +108,7 @@ RSpec.describe Principals::Scopes::Visible do
       current_user { create(:user, firstname: 'current user') }
 
       it 'sees only themself' do
-        expect(subject).to match_array [current_user]
+        expect(subject).to contain_exactly(current_user)
       end
     end
   end

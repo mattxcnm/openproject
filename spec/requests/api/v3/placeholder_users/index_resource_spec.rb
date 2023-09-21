@@ -100,7 +100,7 @@ RSpec.describe API::V3::PlaceholderUsers::PlaceholderUsersAPI,
   end
 
   context 'for a user with manage_placeholder_user permission' do
-    let(:user) { create(:user, global_permission: %i[manage_placeholder_user]) }
+    let(:user) { create(:user, global_permissions: %i[manage_placeholder_user]) }
 
     it_behaves_like 'API V3 collection response', 2, 2, 'PlaceholderUser'
   end

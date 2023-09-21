@@ -28,11 +28,11 @@
 
 require 'spec_helper'
 
-RSpec.describe 'Quick-add menu', js: true, with_cuprite: true do
+RSpec.describe 'Quick-add menu', :js, :with_cuprite do
   let(:quick_add) { Components::QuickAddMenu.new }
 
   context 'as a logged in user with add_project permission' do
-    current_user { create(:user, global_permission: %i[add_project]) }
+    current_user { create(:user, global_permissions: %i[add_project]) }
 
     it 'shows the add project option' do
       visit home_path

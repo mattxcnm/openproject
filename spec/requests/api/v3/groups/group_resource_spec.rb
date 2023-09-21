@@ -37,11 +37,7 @@ RSpec.describe 'API v3 Group resource', content_type: :json do
 
   shared_let(:project) { create(:project) }
   let(:group) do
-    create(:group, member_with_roles: { project => role }).tap do |g|
-      members.each do |members|
-        GroupUser.create group_id: g.id, user_id: members.id
-      end
-    end
+    create(:group, member_with_roles: { project => role }, members:)
   end
   let(:role) { create(:role, permissions:) }
   let(:permissions) { %i[view_members manage_members] }

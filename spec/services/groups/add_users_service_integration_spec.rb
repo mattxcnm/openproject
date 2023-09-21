@@ -136,18 +136,10 @@ RSpec.describe Groups::AddUsersService, 'integration' do
       let(:project) { create(:project) }
       let(:roles) { create_list(:role, 2) }
       let!(:group) do
-        create(:group) do |g|
-          create(:member,
-                 project:,
-                 principal: g,
-                 roles:)
-        end
+        create(:group, member_with_roles: { project => roles })
       end
       let!(:user_member) do
-        create(:member,
-               project:,
-               roles: [roles.first],
-               principal: user1)
+        create(:member, project:, roles: [roles.first], principal: user1)
       end
 
       it 'adds the users to the group and project' do
@@ -211,9 +203,7 @@ RSpec.describe Groups::AddUsersService, 'integration' do
     context 'with global role' do
       let(:role) { create(:global_role) }
       let!(:group) do
-        create(:group,
-               global_role: role,
-               global_permission: :add_project)
+        create(:group, global_roles: [role], global_permissions: [:add_project])
       end
 
       it 'adds the users to the group and their membership to the global role' do
@@ -229,18 +219,10 @@ RSpec.describe Groups::AddUsersService, 'integration' do
       context 'when one user already has a global role that the group would add' do
         let(:global_roles) { create_list(:global_role, 2) }
         let!(:group) do
-          create(:group) do |g|
-            create(:member,
-                   project: nil,
-                   principal: g,
-                   roles: global_roles)
-          end
+          create(:group, member_with_roles: { project => global_roles })
         end
         let!(:user_membership) do
-          create(:member,
-                 project: nil,
-                 roles: [global_roles.first],
-                 principal: user1)
+          create(:member, project: nil, roles: [global_roles.first], principal: user1)
         end
 
         it 'adds their membership to the global role' do
