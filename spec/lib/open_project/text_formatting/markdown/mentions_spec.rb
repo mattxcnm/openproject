@@ -85,7 +85,8 @@ RSpec.describe OpenProject::TextFormatting,
                   #{link_to(linked_project_member.name,
                             { controller: :users, action: :show, id: linked_project_member.id },
                             title: "User #{linked_project_member.name}",
-                            class: 'user-mention op-uc-link')}
+                            class: 'user-mention op-uc-link',
+                            target: '_top')}
                 </p>
               EXPECTED
             end
@@ -131,7 +132,8 @@ RSpec.describe OpenProject::TextFormatting,
                   #{link_to(linked_project_member.name,
                             { controller: :users, action: :show, id: linked_project_member.id },
                             title: "User #{linked_project_member.name}",
-                            class: 'user-mention op-uc-link')}
+                            class: 'user-mention op-uc-link',
+                            target: '_top')}
                 </p>
               EXPECTED
             end
@@ -154,7 +156,8 @@ RSpec.describe OpenProject::TextFormatting,
                   #{link_to(linked_project_member.name,
                             { controller: :users, action: :show, id: linked_project_member.id },
                             title: "User #{linked_project_member.name}",
-                            class: 'user-mention op-uc-link')}
+                            class: 'user-mention op-uc-link',
+                            target: '_top')}
                 </p>
               EXPECTED
             end
@@ -178,7 +181,8 @@ RSpec.describe OpenProject::TextFormatting,
                     #{link_to(linked_project_member.name,
                               { controller: :users, action: :show, id: linked_project_member.id },
                               title: "User #{linked_project_member.name}",
-                              class: 'user-mention op-uc-link')}
+                              class: 'user-mention op-uc-link',
+                              target: '_top')}
                   </p>
                 EXPECTED
               end
@@ -205,7 +209,8 @@ RSpec.describe OpenProject::TextFormatting,
                     #{link_to(linked_project_member.name,
                               { controller: :users, action: :show, id: linked_project_member.id },
                               title: "User #{linked_project_member.name}",
-                              class: 'user-mention op-uc-link')}
+                              class: 'user-mention op-uc-link',
+                              target: '_top')}
                   </p>
                 EXPECTED
               end
@@ -229,7 +234,8 @@ RSpec.describe OpenProject::TextFormatting,
                   #{link_to(linked_project_member.name,
                             { controller: :users, action: :show, id: linked_project_member.id },
                             title: "User #{linked_project_member.name}",
-                            class: 'user-mention op-uc-link')}
+                            class: 'user-mention op-uc-link',
+                            target: '_top')}
                 </p>
               EXPECTED
             end
@@ -287,7 +293,7 @@ RSpec.describe OpenProject::TextFormatting,
               let(:expected) do
                 <<~EXPECTED
                   <p class="op-uc-p">
-                    Link to <a class="user-mention op-uc-link" href="/users/#{user.id}" title="User Foo Barrit">Foo Barrit</a>
+                    Link to <a class="user-mention op-uc-link" target="_top" href="/users/#{user.id}" title="User Foo Barrit">Foo Barrit</a>
                   </p>
                 EXPECTED
               end
@@ -307,7 +313,7 @@ RSpec.describe OpenProject::TextFormatting,
               let(:expected) do
                 <<~EXPECTED
                   <p class="op-uc-p">
-                    Link to <a class="user-mention op-uc-link" href="http://openproject.org/users/#{user.id}" title="User Foo Barrit">Foo Barrit</a>
+                    Link to <a class="user-mention op-uc-link" target="_top" href="http://openproject.org/users/#{user.id}" title="User Foo Barrit">Foo Barrit</a>
                   </p>
                 EXPECTED
               end
@@ -341,6 +347,7 @@ RSpec.describe OpenProject::TextFormatting,
                 <p class="op-uc-p">
                   Link to
                   <a class="user-mention op-uc-link"
+                     target="_top"
                      href="/groups/#{linked_project_member_group.id}"
                      title="Group #{linked_project_member_group.name}">
                     #{linked_project_member_group.name}
@@ -386,6 +393,7 @@ RSpec.describe OpenProject::TextFormatting,
               <<~EXPECTED
                 <p class="op-uc-p">
                   <a class="user-mention op-uc-link"
+                     target="_top"
                      href="/groups/#{linked_project_member_group.id}"
                      title="Group #{linked_project_member_group.name}">
                     #{linked_project_member_group.name}

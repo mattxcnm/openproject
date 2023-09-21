@@ -110,7 +110,6 @@ RSpec.describe 'Upload attachment to forum message', :js do
     click_button 'Create'
 
     attachments_list.expect_attached('image.png')
-
     within '.toolbar-items' do
       click_on "Edit"
     end

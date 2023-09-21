@@ -36,7 +36,7 @@ module Authorization
 
   # Returns all projects a user has a certain permission in
   def projects(action, user)
-    Authorization::ProjectQuery.query(user, action)
+    Project.allowed_to(action, user)
   end
 
   # Returns all work packages the user has explicit permission in
