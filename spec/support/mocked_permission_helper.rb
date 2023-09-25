@@ -45,7 +45,14 @@ class PermissionMock
     @allow_all_permissions = true
   end
 
+  def forbid_everything!
+    @allow_all_permissions = false
+    @permitted_entites = {}
+  end
+
   def in_project(*permissions, project:)
+    return if project.nil?
+
     permissions.each do |permission|
       Authorization::UserPermissibleService.normalized_permissions(permission, :project, raise_on_unknown: true)
     end
@@ -53,6 +60,8 @@ class PermissionMock
   end
 
   def in_work_package(*permissions, work_package:)
+    return if work_package.nil?
+
     permissions.each do |permission|
       Authorization::UserPermissibleService.normalized_permissions(permission, :work_package, raise_on_unknown: true)
     end
