@@ -36,7 +36,7 @@ module Authorization
 
   # Returns all projects a user has a certain permission in
   def projects(action, user)
-    Project.allowed_to(action, user)
+    Project.allowed_to(user, action)
   end
 
   # Returns all work packages the user has explicit permission in
