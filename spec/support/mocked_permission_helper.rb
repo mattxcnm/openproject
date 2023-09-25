@@ -31,13 +31,18 @@
 # For examples on usage, see spec/support_spec/mocked_permission_helper_spec.rb
 
 class PermissionMock
-  attr_reader :user, :permitted_entities
+  attr_reader :user, :permitted_entities, :allow_all_permissions
 
   def initialize(user)
     @user = user
     @permitted_entities = Hash.new do |hash, entity_project_or_global|
       hash[entity_project_or_global] = Array.new
     end
+    @allow_all_permissions = false
+  end
+
+  def all_permissions_allowed!
+    @allow_all_permissions = true
   end
 
   def in_project(*permissions, project:)
@@ -75,11 +80,15 @@ module MockedPermissionHelper
 
     # Permission is allowed globally, when it has been given globally
     allow(permissible_service).to receive(:allowed_globally?) do |permission|
+      next true if permission_mock.allow_all_permissions
+
       permission_mock.permitted_entities[:global].include?(permission)
     end
 
     # Permission allowed on one (or more) projects, when it has been given to all of them
     allow(permissible_service).to receive(:allowed_in_project?) do |permission, project_or_projects|
+      next true if permission_mock.allow_all_permissions
+
       projects = Array(project_or_projects)
 
       projects.all? do |project|
@@ -89,6 +98,8 @@ module MockedPermissionHelper
 
     # Permission allowed on any project, if it has been given to any project
     allow(permissible_service).to receive(:allowed_in_any_project?) do |permission|
+      next true if permission_mock.allow_all_permissions
+
       permission_mock.permitted_entities
         .select { |k, _| k.is_a?(Project) }
         .values
@@ -104,16 +115,15 @@ module MockedPermissionHelper
     #     - the permission has been given to any project
     #     - the permission has been given to any entity
     allow(permissible_service).to receive(:allowed_in_any_entity?) do |permission, entity_class, in_project:|
-      all_permitted_entities = permission_mock.permitted_entities
-
-      next true if in_project && all_permitted_entities[in_project].include?(permission)
+      next true if permission_mock.allow_all_permissions
+      next true if in_project && permission_mock.permitted_entities[in_project].include?(permission)
 
       filtered_entities = if in_project
-                            all_permitted_entities.select do |k, _|
+                            permission_mock.permitted_entities.select do |k, _|
                               k.is_a?(entity_class) && k.respond_to?(:project) && k.project == in_project
                             end
                           else
-                            all_permitted_entities.select { |k, _| k.is_a?(entity_class) || k.is_a?(Project) }
+                            permission_mock.permitted_entities.select { |k, _| k.is_a?(entity_class) || k.is_a?(Project) }
                           end
 
       filtered_entities
@@ -126,13 +136,16 @@ module MockedPermissionHelper
     #  - the permission has been given to the project the entity belongs to
     #  - the permission has been given to the entity itself
     allow(permissible_service).to receive(:allowed_in_entity?) do |permission, entity|
+      next true if permission_mock.allow_all_permissions
+
       (entity.respond_to?(:project) && permission_mock.permitted_entities[entity.project].include?(permission)) ||
       permission_mock.permitted_entities[entity].include?(permission)
     end
 
     # Also mock the legacy interface using the `allowed_to?` method
     allow(user).to receive(:allowed_to?) do |permission, project, global: false|
-      puts "Old interface: allowed_to?(#{permission}, #{project}, global: #{global}))"
+      next true if permission_mock.allow_all_permissions
+
       if global
         # global permission is true, when it is either allowed globally (for global permissions) or
         # when it is allowed in any project (for project permissions).

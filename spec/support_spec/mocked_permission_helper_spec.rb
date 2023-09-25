@@ -70,6 +70,27 @@ RSpec.describe MockedPermissionHelper do
     end
   end
 
+  context 'when mocking all permissions' do
+    before do
+      mock_permissions_for(user) do |mock|
+        mock.all_permissions_allowed!
+      end
+    end
+
+    it 'allows everything' do
+      expect(user).to be_allowed_globally(:add_project)
+      expect(user).to be_allowed_in_project(:add_work_packages, project)
+      expect(user).to be_allowed_in_any_project(:add_work_packages)
+      expect(user).to be_allowed_in_work_package(:add_work_packages, work_package_in_project)
+      expect(user).to be_allowed_in_any_work_package(:add_work_packages)
+
+      # legacy interface
+      expect(user).to be_allowed_to_globally(:add_project)
+      expect(user).to be_allowed_to_in_project(:add_work_packages, project)
+      expect(user).to be_allowed_to_globally(:add_work_packages)
+    end
+  end
+
   context 'when mocking a global permission' do
     before do
       mock_permissions_for(user) do |mock|
