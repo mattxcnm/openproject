@@ -124,7 +124,7 @@ module API
         end
 
         link :customFields do
-          if project.present? && current_user_allowed_to(:select_custom_fields, context: represented)
+          if project.present? && current_user.allowed_in_project?(:select_custom_fields, project)
             {
               href: project_settings_custom_fields_path(project.identifier),
               type: 'text/html',
