@@ -32,10 +32,11 @@ RSpec.describe API::V3::WorkPackages::Schema::SpecificWorkPackageSchema do
   let(:project) { build(:project) }
   let(:type) { build(:type) }
   let(:work_package) { build(:work_package, project:, type:) }
-  let(:current_user) do
-    build_stubbed(:user).tap do |user|
-      allow(user).to receive(:allowed_to?).and_return(true)
-    end
+  let(:current_user) { build_stubbed(:user) }
+
+  before do
+    mock_permissions_for(current_user, &:all_permissions_allowed!)
+    login_as(current_user)
   end
 
   shared_examples_for 'with parent which is a BACKLOGS type' do |writable|
@@ -66,10 +67,6 @@ RSpec.describe API::V3::WorkPackages::Schema::SpecificWorkPackageSchema do
     it "is writable" do
       expect(subject).to be_writable(:version)
     end
-  end
-
-  before do
-    login_as(current_user)
   end
 
   describe '#writable? for remaining_hours' do
