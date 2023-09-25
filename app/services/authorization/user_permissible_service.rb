@@ -8,14 +8,14 @@ module Authorization
     end
 
     def allowed_globally?(permission)
-      perms = normalized_permissions(permission, :global)
+      perms = self.class.normalized_permissions(permission, :global)
       return true if admin_and_all_granted_to_admin?(perms)
 
       AllowedGloballyQuery.new(user, perms).exists?
     end
 
     def allowed_in_project?(permission, projects_to_check)
-      perms = normalized_permissions(permission, :project)
+      perms = self.class.normalized_permissions(permission, :project)
       return false if projects_to_check.blank?
       return false unless authorizable_user?
       return true if admin_and_all_granted_to_admin?(perms)
@@ -28,7 +28,7 @@ module Authorization
     end
 
     def allowed_in_any_project?(permission)
-      perms = normalized_permissions(permission, :project)
+      perms = self.class.normalized_permissions(permission, :project)
       return true if admin_and_all_granted_to_admin?(perms)
 
       AllowedInAnyProjectQuery.new(user, perms).exists?
@@ -46,8 +46,8 @@ module Authorization
     end
 
     def allowed_in_any_entity?(permission, entity_class, in_project: nil)
-      context = entity_class.model_name.element.to_sym
-      perms = normalized_permissions(permission, context)
+      context = entity_self.class.model_name.element.to_sym
+      perms = self.class.normalized_permissions(permission, context)
       return true if admin_and_all_granted_to_admin?(perms)
 
       AllowedInAnyEntityQuery.new(user:, permissions: perms, entity_class:, in_project:).exists?
@@ -97,7 +97,7 @@ module Authorization
 
     def allowed_in_single_entity?(permissions, entity)
       context = entity.model_name.element.to_sym
-      perms = normalized_permissions(permissions, context)
+      perms = self.class.normalized_permissions(permissions, context)
 
       return true if admin_and_all_granted_to_admin?(perms)
 
