@@ -26,19 +26,26 @@
 # See COPYRIGHT and LICENSE files for more details.
 #++
 
-module Storages::Peripherals
-  # Helper for open links for a file link object.
-  module StorageUrlHelper
-    module_function
+module Meetings
+  module DemoData
+    class MeetingSeeder < ::BasicData::ModelSeeder
+      self.model_class = StructuredMeeting
+      self.seed_data_model_key = 'meetings'
 
-    def storage_url_open_file(storage, file_id, open_location: false)
-      location_flag = ActiveModel::Type::Boolean.new.cast(open_location) ? 0 : 1
+      attr_reader :project
 
-      "#{storage.host}/index.php/f/#{file_id}?openfile=#{location_flag}"
-    end
+      def initialize(project, seed_data)
+        super(seed_data)
+        @project = project
+      end
 
-    def storage_url_open(storage)
-      "#{storage.host}/index.php/apps/files"
+      def model_attributes(meeting_data)
+        {
+          title: meeting_data['title'],
+          author: seed_data.find_reference(meeting_data['author']),
+          project:
+        }
+      end
     end
   end
 end
