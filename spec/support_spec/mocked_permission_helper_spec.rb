@@ -102,6 +102,10 @@ RSpec.describe MockedPermissionHelper do
       expect(user).to be_allowed_globally(:add_project)
     end
 
+    it 'allows the global permission when querying with controller and action hash' do
+      expect(user).to be_allowed_globally({ controller: 'projects', action: 'new' })
+    end
+
     it 'allows the global permission using the deprecated interface' do
       expect(user).to be_allowed_to_globally(:add_project)
       expect(user).to be_allowed_to(:add_project, nil, global: true)
@@ -121,6 +125,11 @@ RSpec.describe MockedPermissionHelper do
 
       expect(user).to be_allowed_in_project(:add_work_packages, project)
       expect(user).not_to be_allowed_in_project(:add_work_packages, other_project)
+    end
+
+    it 'allows the project permission when querying with controller and action hash' do
+      expect(user).to be_allowed_in_project({ controller: 'work_packages', action: 'index', project_id: project.id })
+      expect(user).to be_allowed_in_any_project({ controller: 'work_packages', action: 'index' })
     end
 
     it 'allows the permission when using the deprecated interface' do
@@ -180,6 +189,14 @@ RSpec.describe MockedPermissionHelper do
       expect(user).not_to be_allowed_in_any_work_package(:edit_work_packages, in_project: other_project)
 
       expect(user).not_to be_allowed_in_any_work_package(:copy_work_packages, in_project: project)
+    end
+
+    it 'allows the work package permission when querying with controller and action hash' do
+      expect(user).to be_allowed_in_work_package({ controller: 'work_packages', action: 'index', project_id: project.id },
+                                                 work_package_in_project)
+      expect(user).to be_allowed_in_any_work_package({ controller: 'work_packages', action: 'index', project_id: project.id })
+      expect(user).to be_allowed_in_any_work_package({ controller: 'work_packages', action: 'index', project_id: project.id },
+                                                     in_project: project)
     end
 
     it 'allows the permissions when asking for any work package' do

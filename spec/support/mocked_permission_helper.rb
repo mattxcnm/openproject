@@ -79,32 +79,36 @@ module MockedPermissionHelper
     permissible_service = user.send(:user_permissible_service) # access the private instance
 
     # Permission is allowed globally, when it has been given globally
-    allow(permissible_service).to receive(:allowed_globally?) do |permission|
+    allow(permissible_service).to receive(:allowed_globally?) do |permission_or_action|
       next true if permission_mock.allow_all_permissions
 
-      permission_mock.permitted_entities[:global].include?(permission)
+      permissions = Authorization::UserPermissibleService.permissions_for(permission_or_action).map(&:name)
+      permission_mock.permitted_entities[:global].intersect?(permissions)
     end
 
     # Permission allowed on one (or more) projects, when it has been given to all of them
-    allow(permissible_service).to receive(:allowed_in_project?) do |permission, project_or_projects|
+    allow(permissible_service).to receive(:allowed_in_project?) do |permission_or_action, project_or_projects|
       next true if permission_mock.allow_all_permissions
 
       projects = Array(project_or_projects)
+      permissions = Authorization::UserPermissibleService.permissions_for(permission_or_action).map(&:name)
 
       projects.all? do |project|
-        permission_mock.permitted_entities[project].include?(permission)
+        permission_mock.permitted_entities[project].intersect?(permissions)
       end
     end
 
     # Permission allowed on any project, if it has been given to any project
-    allow(permissible_service).to receive(:allowed_in_any_project?) do |permission|
+    allow(permissible_service).to receive(:allowed_in_any_project?) do |permission_or_action|
       next true if permission_mock.allow_all_permissions
+
+      permissions = Authorization::UserPermissibleService.permissions_for(permission_or_action).map(&:name)
 
       permission_mock.permitted_entities
         .select { |k, _| k.is_a?(Project) }
         .values
         .flatten
-        .include?(permission)
+        .intersect?(permissions)
     end
 
     # Permission is allowed on any entity, if
@@ -114,9 +118,12 @@ module MockedPermissionHelper
     #   - NOT filtering for one specific project, when
     #     - the permission has been given to any project
     #     - the permission has been given to any entity
-    allow(permissible_service).to receive(:allowed_in_any_entity?) do |permission, entity_class, in_project:|
+    allow(permissible_service).to receive(:allowed_in_any_entity?) do |permission_or_action, entity_class, in_project:|
       next true if permission_mock.allow_all_permissions
-      next true if in_project && permission_mock.permitted_entities[in_project].include?(permission)
+
+      permissions = Authorization::UserPermissibleService.permissions_for(permission_or_action).map(&:name)
+
+      next true if in_project && permission_mock.permitted_entities[in_project].intersect?(permissions)
 
       filtered_entities = if in_project
                             permission_mock.permitted_entities.select do |k, _|
@@ -129,34 +136,38 @@ module MockedPermissionHelper
       filtered_entities
         .values
         .flatten
-        .include?(permission)
+        .intersect?(permissions)
     end
 
     # Permission is allowed on a specific entity, if
     #  - the permission has been given to the project the entity belongs to
     #  - the permission has been given to the entity itself
-    allow(permissible_service).to receive(:allowed_in_entity?) do |permission, entity|
+    allow(permissible_service).to receive(:allowed_in_entity?) do |permission_or_action, entity|
       next true if permission_mock.allow_all_permissions
 
-      (entity.respond_to?(:project) && permission_mock.permitted_entities[entity.project].include?(permission)) ||
-      permission_mock.permitted_entities[entity].include?(permission)
+      permissions = Authorization::UserPermissibleService.permissions_for(permission_or_action).map(&:name)
+
+      (entity.respond_to?(:project) && permission_mock.permitted_entities[entity.project].intersect?(permissions)) ||
+      permission_mock.permitted_entities[entity].intersect?(permissions)
     end
 
     # Also mock the legacy interface using the `allowed_to?` method
-    allow(user).to receive(:allowed_to?) do |permission, project, global: false|
+    allow(user).to receive(:allowed_to?) do |permission_or_action, project, global: false|
       next true if permission_mock.allow_all_permissions
+
+      permissions = Authorization::UserPermissibleService.permissions_for(permission_or_action).map(&:name)
 
       if global
         # global permission is true, when it is either allowed globally (for global permissions) or
         # when it is allowed in any project (for project permissions).
-        permission_mock.permitted_entities[:global].include?(permission) ||
+        permission_mock.permitted_entities[:global].intersect?(permissions) ||
         permission_mock.permitted_entities
         .select { |k, _| k.is_a?(Project) }
         .values
         .flatten
-        .include?(permission)
+        .intersect?(permissions)
       elsif project
-        permission_mock.permitted_entities[project].include?(permission)
+        permission_mock.permitted_entities[project].intersect?(permissions)
       end
     end
   end
