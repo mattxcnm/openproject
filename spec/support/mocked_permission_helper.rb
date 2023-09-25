@@ -129,6 +129,23 @@ module MockedPermissionHelper
       (entity.respond_to?(:project) && permission_mock.permitted_entities[entity.project].include?(permission)) ||
       permission_mock.permitted_entities[entity].include?(permission)
     end
+
+    # Also mock the legacy interface using the `allowed_to?` method
+    allow(user).to receive(:allowed_to?) do |permission, project, global: false|
+      puts "Old interface: allowed_to?(#{permission}, #{project}, global: #{global}))"
+      if global
+        # global permission is true, when it is either allowed globally (for global permissions) or
+        # when it is allowed in any project (for project permissions).
+        permission_mock.permitted_entities[:global].include?(permission) ||
+        permission_mock.permitted_entities
+        .select { |k, _| k.is_a?(Project) }
+        .values
+        .flatten
+        .include?(permission)
+      elsif project
+        permission_mock.permitted_entities[project].include?(permission)
+      end
+    end
   end
 end
 

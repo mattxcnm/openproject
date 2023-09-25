@@ -80,6 +80,11 @@ RSpec.describe MockedPermissionHelper do
     it 'allows the global permission' do
       expect(user).to be_allowed_globally(:add_project)
     end
+
+    it 'allows the global permission using the deprecated interface' do
+      expect(user).to be_allowed_to_globally(:add_project)
+      expect(user).to be_allowed_to(:add_project, nil, global: true)
+    end
   end
 
   context 'when mocking a permission in the project' do
@@ -95,6 +100,12 @@ RSpec.describe MockedPermissionHelper do
 
       expect(user).to be_allowed_in_project(:add_work_packages, project)
       expect(user).not_to be_allowed_in_project(:add_work_packages, other_project)
+    end
+
+    it 'allows the permission when using the deprecated interface' do
+      expect(user).to be_allowed_to_in_project(:view_work_packages, project)
+      expect(user).to be_allowed_to(:view_work_packages, project)
+      expect(user).to be_allowed_to_globally(:view_work_packages)
     end
 
     it 'allows the permissions when asking for any project' do
