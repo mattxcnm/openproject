@@ -56,7 +56,7 @@ cd openproject/compose
 Make sure you are using the latest version of the Docker images:
 
 ```shell
-docker-compose pull
+sudo docker compose pull
 ```
 
 Launch the containers:
