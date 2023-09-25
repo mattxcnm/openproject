@@ -11,7 +11,7 @@ module Authorization
       perms = self.class.normalized_permissions(permission, :global)
       return true if admin_and_all_granted_to_admin?(perms)
 
-      AllowedGloballyQuery.new(user, perms).exists?
+      AllowedGloballyQuery.new(user:, permissions: perms).exists?
     end
 
     def allowed_in_project?(permission, projects_to_check)
@@ -23,7 +23,7 @@ module Authorization
       projects = Array(projects_to_check)
 
       projects.all? do |project|
-        allowed_in_single_project?(permission, project)
+        allowed_in_single_project?(perms, project)
       end
     end
 
@@ -31,10 +31,11 @@ module Authorization
       perms = self.class.normalized_permissions(permission, :project)
       return true if admin_and_all_granted_to_admin?(perms)
 
-      AllowedInAnyProjectQuery.new(user, perms).exists?
+      AllowedInAnyProjectQuery.new(user:, permissions: perms).exists?
     end
 
     def allowed_in_entity?(permission, entities_to_check)
+      # TODO: Normalize permissions for entities
       return false if entities_to_check.blank?
       return false unless authorizable_user?
 
@@ -90,9 +91,10 @@ module Authorization
     private
 
     def allowed_in_single_project?(permissions, project)
+      return false if project.nil?
       return false unless project.active? || project.being_archived?
 
-      AllowedInProjectQuery.new(user, project, permissions).exists?
+      AllowedInProjectQuery.new(user:, project:, permissions:).exists?
     end
 
     def allowed_in_single_entity?(permissions, entity)
@@ -101,11 +103,7 @@ module Authorization
 
       return true if admin_and_all_granted_to_admin?(perms)
 
-      if entity.respond_to?(:project)
-        return false if entity.project.nil?
-        return true if allowed_in_single_project?(perms, entity.project)
-        return false unless entity.project.active? || entity.project.being_archived?
-      end
+      return true if entity.respond_to?(:project) && allowed_in_single_project?(perms, entity.project)
 
       AllowedInEntityQuery.new(user:, entity:, permissions: perms).exists?
     end

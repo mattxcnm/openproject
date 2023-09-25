@@ -2,10 +2,10 @@ module Authorization
   class AllowedInProjectQuery
     attr_reader :user, :permissions, :projects
 
-    def initialize(user, permissions, project_or_projects)
+    def initialize(user:, permissions:, project:)
       @user = user
       @permissions = Array(permissions)
-      @projects = Array(project_or_projects)
+      @projects = Array(project)
     end
 
     def query

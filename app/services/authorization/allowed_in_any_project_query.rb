@@ -2,7 +2,7 @@ module Authorization
   class AllowedInAnyProjectQuery
     attr_reader :user, :permissions
 
-    def initialize(user, permissions)
+    def initialize(user:, permissions:)
       @user = user
       @permissions = Array(permissions)
     end
