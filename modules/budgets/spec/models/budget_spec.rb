@@ -59,7 +59,9 @@ RSpec.describe Budget do
 
     context 'when allowed to edit budgets' do
       before do
-        allow(User.current).to receive(:allowed_to?).with(:edit_budgets, project).and_return(true)
+        mock_permissions_for(User.current) do |mock|
+          mock.in_project :edit_budgets, project:
+        end
       end
 
       context 'with a non integer value' do
